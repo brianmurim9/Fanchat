@@ -2,7 +2,7 @@
 deployment:
   tasks:
     # Live folder
-    - export DEPLOYPATH=/home2/winzonep/PlayVora
+    - export DEPLOYPATH=/home2/winzonep/Fanchat
 
     # Sync repo to live folder
     - /usr/bin/rsync -av --delete \

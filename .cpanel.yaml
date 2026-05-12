@@ -1,15 +1,8 @@
-# Deployment configuration for Bothive website
 deployment:
   tasks:
-    # Live folder
-<<<<<<< HEAD
-    - export DEPLOYPATH=/home2/winzonep/Fanchat 
-=======
     - export DEPLOYPATH=/home2/winzonep/Fanchat
->>>>>>> 1cbddb18f78ed860c063d6853993ac6eae55ef5c
 
-    # Sync repo to live folder
     - /usr/bin/rsync -av --delete \
-        --exclude='.git' \
-        --exclude='.cpanel.yml' \
-        ./ $DEPLOYPATH
+      --exclude='.git' \
+      --exclude='.cpanel.yml' \
+      ./ $DEPLOYPATH

@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FanChat — Connect & Mingle</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #16a34a;
+    --green-light: #22c55e;
+    --green-dark: #15803d;
+    --green-muted: #dcfce7;
+    --bronze: #cd7f32;
+    --bronze-light: #e8a96b;
+    --bronze-bg: #fdf3e7;
+    --silver: #94a3b8;
+    --silver-light: #cbd5e1;
+    --silver-bg: #f1f5f9;
+    --gold: #d97706;
+    --gold-light: #fbbf24;
+    --gold-bg: #fffbeb;
+    --bg: #f0fdf4;
+    --card: #ffffff;
+    --border: #e2e8f0;
+    --text: #0f172a;
+    --muted: #64748b;
+    --radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    padding: 24px;
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(34,197,94,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(22,163,74,0.06) 0%, transparent 50%);
+  }
+
+  /* AUTH PAGES: centered */
+  .auth-wrap {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 48px);
+  }
+  .auth-wrap.active { display: flex; animation: fadeUp 0.4s ease; }
+
+  .auth-inner { width: 100%; max-width: 480px; }
+
+  /* DASHBOARD PAGES: full width */
+  .dash-page { display: none; }
+  .dash-page.active { display: block; animation: fadeUp 0.4s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.07), 0 20px 60px -10px rgba(22,163,74,0.12);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .card-top-bar { height: 5px; background: linear-gradient(90deg, var(--green-dark), var(--green-light)); }
+  .card-body { padding: 36px 40px 40px; }
+
+  .brand { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+  .brand-icon {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, var(--green), var(--green-light));
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 4px 14px rgba(22,163,74,0.3);
+  }
+  .brand-text h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; }
+  .brand-text p  { font-size: 13px; color: var(--muted); margin-top: 1px; }
+
+  .info-banner {
+    background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px;
+    padding: 11px 14px; font-size: 13px; color: #1d4ed8; margin-bottom: 22px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .field { margin-bottom: 18px; }
+  label { display: block; font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 7px; }
+  .input-wrap { position: relative; display: flex; align-items: center; }
+  .input-wrap .icon { position: absolute; left: 14px; color: var(--muted); font-size: 15px; pointer-events: none; }
+
+  input[type="text"], input[type="email"], input[type="password"], input[type="tel"] {
+    width: 100%; padding: 12px 14px 12px 40px;
+    border: 1.5px solid var(--border); border-radius: 10px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text);
+    background: #fafafa; transition: border-color 0.2s, box-shadow 0.2s, background 0.2s; outline: none;
+  }
+  input:focus { border-color: var(--green); background: #fff; box-shadow: 0 0 0 3px rgba(22,163,74,0.1); }
+
+  .field-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 7px; }
+  .field-row label { margin-bottom: 0; }
+  .forgot { font-size: 13px; color: var(--green); text-decoration: none; font-weight: 500; }
+  .forgot:hover { text-decoration: underline; }
+  .eye-btn { position: absolute; right: 14px; background: none; border: none; cursor: pointer; color: var(--muted); font-size: 16px; }
+
+  .checkbox-wrap { display: flex; align-items: center; gap: 9px; margin-bottom: 22px; }
+  .checkbox-wrap input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--green); cursor: pointer; }
+  .checkbox-wrap span { font-size: 13px; color: var(--muted); }
+
+  .btn-primary {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, var(--green-dark), var(--green-light));
+    color: #fff; border: none; border-radius: 10px;
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 15px; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 14px rgba(22,163,74,0.35);
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(22,163,74,0.4); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .btn-secondary {
+    width: 100%; padding: 12px; background: transparent; color: var(--green);
+    border: 1.5px solid var(--green); border-radius: 10px;
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 14px; font-weight: 600;
+    cursor: pointer; transition: background 0.2s, color 0.2s;
+  }
+  .btn-secondary:hover { background: var(--green-muted); }
+
+  .divider {
+    text-align: center; position: relative; margin: 22px 0 18px;
+    font-size: 12px; color: var(--muted);
+  }
+  .divider::before, .divider::after {
+    content: ''; position: absolute; top: 50%;
+    width: calc(50% - 60px); height: 1px; background: var(--border);
+  }
+  .divider::before { left: 0; } .divider::after { right: 0; }
+
+  .social-row { display: flex; gap: 10px; }
+  .social-btn {
+    flex: 1; padding: 11px; border: 1.5px solid var(--border); border-radius: 10px;
+    background: #fff; cursor: pointer; font-size: 17px;
+    transition: border-color 0.2s, background 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .social-btn:hover { border-color: var(--green); background: var(--green-muted); }
+
+  .card-footer {
+    padding: 16px 40px; border-top: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center; background: #fafafa;
+  }
+  .card-footer span { font-size: 12px; color: #94a3b8; }
+  .footer-link { font-size: 13px; color: var(--muted); }
+  .footer-link a { color: var(--green); font-weight: 600; text-decoration: none; }
+  .footer-link a:hover { text-decoration: underline; }
+
+  /* ── SIGN UP STEPS ── */
+  .signup-progress { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 28px; }
+  .step-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); transition: background 0.3s; }
+  .step-dot.done { background: var(--green); }
+  .step-dot.active { background: var(--green-light); width: 28px; border-radius: 5px; }
+
+  .step { display: none; }
+  .step.active { display: block; animation: fadeUp 0.35s ease; }
+  .step-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 6px; letter-spacing: -0.4px; }
+  .step-sub { font-size: 14px; color: var(--muted); margin-bottom: 26px; }
+
+  /* ── PLAN CARDS ── */
+  .plans { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+  .plan-card {
+    border: 2px solid var(--border); border-radius: 14px; padding: 18px 20px;
+    cursor: pointer; transition: all 0.25s; background: #fff; position: relative; overflow: hidden;
+  }
+  .plan-card::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; transition: width 0.25s;
+  }
+  .plan-card.bronze::before { background: var(--bronze); }
+  .plan-card.silver::before { background: var(--silver); }
+  .plan-card.gold::before   { background: var(--gold); }
+  .plan-card:hover { transform: translateX(3px); }
+  .plan-card.selected.bronze { border-color: var(--bronze); background: var(--bronze-bg); box-shadow: 0 4px 20px rgba(205,127,50,0.15); }
+  .plan-card.selected.silver { border-color: var(--silver); background: var(--silver-bg); box-shadow: 0 4px 20px rgba(148,163,184,0.2); }
+  .plan-card.selected.gold   { border-color: var(--gold);   background: var(--gold-bg);   box-shadow: 0 4px 20px rgba(217,119,6,0.15); }
+  .plan-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .plan-name-wrap { display: flex; align-items: center; gap: 10px; }
+  .plan-icon { font-size: 22px; }
+  .plan-name { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 700; color: var(--text); }
+  .plan-badge { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; }
+  .plan-card.bronze .plan-badge { background: #fde8cc; color: var(--bronze); }
+  .plan-card.silver .plan-badge { background: var(--silver-bg); color: #475569; }
+  .plan-card.gold   .plan-badge { background: #fef3c7; color: var(--gold); }
+  .plan-price { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 800; margin-bottom: 10px; }
+  .plan-card.bronze .plan-price { color: var(--bronze); }
+  .plan-card.silver .plan-price { color: var(--silver); }
+  .plan-card.gold   .plan-price { color: var(--gold); }
+  .plan-price span { font-size: 13px; font-weight: 400; color: var(--muted); }
+  .plan-features { list-style: none; }
+  .plan-features li { font-size: 13px; color: var(--muted); display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
+  .plan-features li::before { content: '✓'; color: var(--green); font-weight: 700; font-size: 12px; }
+  .plan-check { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0; }
+  .plan-card.selected .plan-check { background: var(--green); border-color: var(--green); color: #fff; font-size: 12px; }
+  .popular-tag { position: absolute; top: -1px; right: 18px; background: var(--gold); color: #fff; font-size: 10px; font-weight: 700; padding: 3px 10px 4px; border-radius: 0 0 8px 8px; letter-spacing: 0.5px; text-transform: uppercase; }
+
+  /* ── PAYMENT ── */
+  .mpesa-banner {
+    background: linear-gradient(135deg, #00a550 0%, #007a3d 100%); border-radius: 12px;
+    padding: 18px 20px; display: flex; align-items: center; gap: 14px; margin-bottom: 24px; color: #fff;
+  }
+  .mpesa-logo { background: rgba(255,255,255,0.2); border-radius: 10px; padding: 8px 10px; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 900; font-size: 13px; letter-spacing: -0.5px; }
+  .mpesa-banner h3 { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+  .mpesa-banner p  { font-size: 12px; opacity: 0.85; }
+
+  .selected-plan-summary {
+    background: var(--green-muted); border: 1px solid rgba(22,163,74,0.2); border-radius: 10px;
+    padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px;
+  }
+  .selected-plan-summary .label { font-size: 12px; color: var(--muted); margin-bottom: 2px; }
+  .selected-plan-summary .value { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; color: var(--text); font-size: 15px; }
+  .selected-plan-summary .price-val { color: var(--green); font-size: 18px; font-weight: 800; }
+
+  .payment-toggle { display: flex; gap: 10px; margin: 18px 0 20px; }
+  .toggle-btn {
+    flex: 1; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; background: #f8fafc;
+    font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px; color: #64748b;
+  }
+  .toggle-btn.active  { border-color: #4f46e5; background: #eef2ff; color: #4f46e5; }
+  .toggle-btn:hover:not(.active) { border-color: #cbd5e1; background: #f1f5f9; }
+
+  .paypal-banner { display: flex; align-items: center; gap: 14px; background: #f0f7ff; border: 1.5px solid #bfdbfe; border-radius: 12px; padding: 14px 16px; margin-bottom: 18px; }
+  .paypal-logo { background: #003087; color: #fff; font-weight: 800; font-size: 1rem; padding: 8px 12px; border-radius: 8px; letter-spacing: 0.5px; }
+  .paypal-banner h3 { margin: 0 0 2px; font-size: 0.95rem; color: #1e3a5f; }
+  .paypal-banner p  { margin: 0; font-size: 0.8rem; color: #4a6fa5; }
+
+  .paypal-info-box { background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; margin-bottom: 18px; }
+  .paypal-info-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
+  .paypal-info-row:last-child { border-bottom: none; }
+  .paypal-info-label { font-size: 0.8rem; color: #94a3b8; }
+  .paypal-info-value { font-size: 0.88rem; font-weight: 600; color: #1e293b; }
+  .paypal-amount { color: #16a34a; font-size: 1rem; }
+
+  .paypal-steps { margin-bottom: 20px; }
+  .pp-step { display: flex; align-items: center; gap: 10px; padding: 7px 0; font-size: 0.85rem; color: #475569; }
+  .pp-num { width: 22px; height: 22px; background: #003087; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+
+  .btn-paypal { width: 100%; padding: 14px; background: #0070ba; color: #fff; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+  .btn-paypal:hover { background: #005ea6; }
+  .btn-paypal:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  /* ── PASSWORD MISMATCH ── */
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%     { transform: translateX(-6px); }
+    40%     { transform: translateX(6px); }
+    60%     { transform: translateX(-4px); }
+    80%     { transform: translateX(4px); }
+  }
+  .pwd-mismatch-msg {
+    display: none; color: #e53e3e; background: #fff5f5;
+    border: 1px solid #fc8181; border-radius: 6px;
+    padding: 8px 12px; margin-top: 8px; font-size: 0.85rem;
+  }
+  input.mismatch { border-color: #e53e3e !important; outline-color: #e53e3e !important; }
+
+  /* ── MODAL ── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 24px; }
+  .modal-overlay.show { display: flex; animation: fadeIn 0.25s ease; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal { background: #fff; border-radius: 20px; padding: 36px 32px; max-width: 400px; width: 100%; box-shadow: 0 25px 80px rgba(0,0,0,0.2); animation: scaleIn 0.3s cubic-bezier(0.34,1.56,0.64,1); text-align: center; }
+  @keyframes scaleIn { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .modal-icon { width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, #00a550, #007a3d); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 32px; box-shadow: 0 8px 24px rgba(0,165,80,0.3); }
+  .modal h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 10px; }
+  .modal p { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 8px; }
+  .modal .phone-display { background: #f0fdf4; border: 1.5px solid var(--green); border-radius: 10px; padding: 12px 16px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 700; color: var(--green); margin: 16px 0 20px; letter-spacing: 1px; }
+  .modal .amount-display { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; font-weight: 900; color: var(--text); margin-bottom: 6px; }
+  .modal .amount-display span { color: var(--green); }
+  .modal-steps { text-align: left; margin: 16px 0 22px; }
+  .modal-steps li { font-size: 13px; color: var(--muted); padding: 8px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+  .modal-steps li:last-child { border-bottom: none; }
+  .step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--green); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .status-banner { display: none; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 500; margin-bottom: 16px; }
+  .status-banner.error   { display: flex; background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; gap: 8px; align-items: center; }
+  .status-banner.success { display: flex; background: #f0fdf4; color: var(--green-dark); border: 1px solid #bbf7d0; gap: 8px; align-items: center; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  /* ═══════════════════════════════
+     DASHBOARD / PROFILE PAGES
+  ═══════════════════════════════ */
+  .dash-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 28px; background: #fff; border-radius: var(--radius);
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 28px;
+    border: 1px solid var(--border);
+  }
+  .dash-brand { display: flex; align-items: center; gap: 12px; }
+  .dash-brand-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .dash-brand h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px; font-weight: 800; color: var(--text); }
+
+  .tier-badge-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 16px; border-radius: 30px;
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .tier-badge-header.bronze { background: var(--bronze-bg); color: var(--bronze); border: 1.5px solid var(--bronze-light); }
+  .tier-badge-header.silver { background: var(--silver-bg); color: #475569; border: 1.5px solid var(--silver-light); }
+  .tier-badge-header.gold   { background: var(--gold-bg);   color: var(--gold);   border: 1.5px solid var(--gold-light); }
+
+  .btn-signout { padding: 8px 18px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; color: var(--muted); font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .btn-signout:hover { border-color: #ef4444; color: #ef4444; }
+
+  .dash-welcome {
+    text-align: center; margin-bottom: 32px; padding: 28px;
+    border-radius: var(--radius); background: #fff; border: 1px solid var(--border);
+  }
+  .dash-welcome h1 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 26px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+  .dash-welcome p  { color: var(--muted); font-size: 15px; }
+
+  .profiles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+
+  .profile-card {
+    background: #fff; border-radius: 16px; overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .profile-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(0,0,0,0.1); }
+
+  .profile-card-top {
+    height: 6px;
+  }
+  .bronze .profile-card-top { background: linear-gradient(90deg, var(--bronze), var(--bronze-light)); }
+  .silver .profile-card-top { background: linear-gradient(90deg, var(--silver), var(--silver-light)); }
+  .gold   .profile-card-top { background: linear-gradient(90deg, var(--gold), var(--gold-light)); }
+
+  .profile-card-body { padding: 20px; }
+
+  .profile-avatar {
+    width: 64px; height: 64px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; margin-bottom: 14px;
+    border: 3px solid var(--border);
+  }
+
+  .profile-name { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .profile-handle { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+
+  .profile-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+  .meta-chip {
+    font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px;
+    background: #f1f5f9; color: #475569;
+  }
+  .meta-chip.country { background: #eff6ff; color: #1d4ed8; }
+  .meta-chip.age     { background: #fdf4ff; color: #7e22ce; }
+  .meta-chip.sex     { background: #fff1f2; color: #be123c; }
+  .meta-chip.status  { background: #f0fdf4; color: var(--green-dark); }
+
+  .profile-phone {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: var(--muted); margin-bottom: 12px;
+    padding: 8px 12px; background: #f8fafc; border-radius: 8px;
+  }
+  .profile-phone span { color: var(--text); font-weight: 600; }
+
+  .profile-bio { font-size: 13px; color: var(--muted); line-height: 1.65; border-top: 1px solid var(--border); padding-top: 12px; }
+
+  .btn-chat {
+    width: 100%; margin-top: 14px; padding: 10px;
+    background: linear-gradient(135deg, var(--green-dark), var(--green-light));
+    color: #fff; border: none; border-radius: 8px;
+    font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 700;
+    cursor: pointer; transition: opacity 0.2s;
+  }
+  .btn-chat:hover { opacity: 0.9; }
+
+  .profiles-count {
+    text-align: center; margin-bottom: 24px;
+    font-size: 14px; color: var(--muted);
+  }
+  .profiles-count strong { color: var(--text); }
+
+  .dash-tier-banner {
+    display: flex; align-items: center; gap: 16px;
+    padding: 18px 24px; border-radius: 14px; margin-bottom: 28px;
+  }
+  .dash-tier-banner.bronze { background: var(--bronze-bg); border: 1.5px solid var(--bronze-light); }
+  .dash-tier-banner.silver { background: var(--silver-bg); border: 1.5px solid var(--silver-light); }
+  .dash-tier-banner.gold   { background: var(--gold-bg);   border: 1.5px solid var(--gold-light); }
+  .dash-tier-banner .tier-icon { font-size: 36px; }
+  .dash-tier-banner h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 800; margin-bottom: 2px; }
+  .dash-tier-banner.bronze h3 { color: var(--bronze); }
+  .dash-tier-banner.silver h3 { color: #475569; }
+  .dash-tier-banner.gold   h3 { color: var(--gold); }
+  .dash-tier-banner p { font-size: 13px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ SIGN IN PAGE ═══════════ -->
+<div class="auth-wrap active" id="page-signin">
+  <div class="auth-inner">
+    <div class="card">
+      <div class="card-top-bar"></div>
+      <div class="card-body">
+        <div class="brand">
+          <div class="brand-icon">💬</div>
+          <div class="brand-text">
+            <h1>FAN CHATS</h1>
+            <p>Sign in to your account</p>
+          </div>
+        </div>
+
+        <div class="info-banner">ℹ️ Use your <strong>phone number or email</strong> to sign in</div>
+        <div id="signin-error" class="status-banner"></div>
+
+        <div class="field">
+          <label>Phone Number or Email</label>
+          <div class="input-wrap">
+            <span class="icon">📱</span>
+            <input type="text" id="signin-identifier" placeholder="07XXXXXXXX or you@email.com">
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="field-row">
+            <label>Password</label>
+            <a href="#" class="forgot">Forgot password?</a>
+          </div>
+          <div class="input-wrap">
+            <span class="icon">🔒</span>
+            <input type="password" id="signin-password" placeholder="Enter your password">
+            <button class="eye-btn" onclick="togglePwd('signin-password',this)">👁</button>
+          </div>
+        </div>
+
+        <div class="checkbox-wrap">
+          <input type="checkbox" id="remember-me">
+          <span>Remember me</span>
+        </div>
+
+        <button class="btn-primary" onclick="handleSignIn()">▶ Sign In</button>
+
+        <div class="divider">or continue with</div>
+        <div class="social-row">
+          <button class="social-btn" title="Facebook">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877f2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+          </button>
+          <button class="social-btn" title="Google">
+            <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+          </button>
+          <button class="social-btn" title="X">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="#000"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="card-footer">
+        <span>© 2026 FAN CHAT</span>
+        <span class="footer-link">No account? <a href="#" onclick="showPage('page-signup')">Sign up →</a></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ SIGN UP PAGE ═══════════ -->
+<div class="auth-wrap" id="page-signup">
+  <div class="auth-inner">
+    <div class="card">
+      <div class="card-top-bar"></div>
+      <div class="card-body">
+        <div class="brand">
+          <div class="brand-icon">💬</div>
+          <div class="brand-text">
+            <h1>FAN CHAT</h1>
+            <p>Create your account</p>
+          </div>
+        </div>
+
+        <div class="signup-progress">
+          <div class="step-dot active" id="dot-1"></div>
+          <div class="step-dot" id="dot-2"></div>
+          <div class="step-dot" id="dot-3"></div>
+        </div>
+
+        <!-- STEP 1: Basic Info -->
+        <div class="step active" id="step-1">
+          <div class="step-title">Create Account</div>
+          <div class="step-sub">Enter your details to get started</div>
+          <div id="signup-error" class="status-banner"></div>
+
+          <div class="two-col">
+            <div class="field">
+              <label>First Name</label>
+              <div class="input-wrap">
+                <span class="icon">👤</span>
+                <input type="text" id="first-name" placeholder="John">
+              </div>
+            </div>
+            <div class="field">
+              <label>Last Name</label>
+              <div class="input-wrap">
+                <span class="icon">👤</span>
+                <input type="text" id="last-name" placeholder="Doe">
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Phone Number or Email</label>
+            <div class="input-wrap">
+              <span class="icon">📱</span>
+              <input type="text" id="signup-identifier" placeholder="07XXXXXXXX or you@email.com">
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Password</label>
+            <div class="input-wrap">
+              <span class="icon">🔒</span>
+              <input type="password" id="signup-password" placeholder="Create a strong password">
+              <button class="eye-btn" onclick="togglePwd('signup-password',this)">👁</button>
+            </div>
+          </div>
+
+          <!-- CONFIRM PASSWORD (on sign-up only) -->
+          <div class="field">
+            <label>Confirm Password</label>
+            <div class="input-wrap">
+              <span class="icon">🔒</span>
+              <input type="password" id="signup-confirm-password" placeholder="Re-enter your password" oninput="checkSignupPwdMatch()">
+              <button class="eye-btn" onclick="togglePwd('signup-confirm-password',this)">👁</button>
+            </div>
+            <div class="pwd-mismatch-msg" id="signup-pwd-mismatch">⚠️ Passwords do not match. Please try again.</div>
+          </div>
+
+          <button class="btn-primary" onclick="goToStep(2)" style="margin-bottom:12px">Continue →</button>
+          <button class="btn-secondary" onclick="showPage('page-signin')">Already have an account? Sign In</button>
+        </div>
+
+        <!-- STEP 2: Choose Membership -->
+        <div class="step" id="step-2">
+          <div class="step-title">Choose Membership</div>
+          <div class="step-sub">Select the plan that works best for you</div>
+
+          <div class="plans">
+            <div class="plan-card bronze" onclick="selectPlan(this,'bronze','KES 299',299)">
+              <div class="plan-header">
+                <div class="plan-name-wrap">
+                  <span class="plan-icon">🥉</span>
+                  <span class="plan-name">Bronze</span>
+                  <span class="plan-badge">Starter</span>
+                </div>
+                <div class="plan-check" id="check-bronze"></div>
+              </div>
+              <div class="plan-price">KES 299 <span>/ month</span></div>
+              <ul class="plan-features">
+                <li>Access to 10 client profiles</li>
+                <li>Basic chat features</li>
+                <li>Standard response speed</li>
+                <li>Community support</li>
+              </ul>
+            </div>
+
+            <div class="plan-card silver" onclick="selectPlan(this,'silver','KES 599',599)">
+              <div class="plan-header">
+                <div class="plan-name-wrap">
+                  <span class="plan-icon">🥈</span>
+                  <span class="plan-name">Silver</span>
+                  <span class="plan-badge">Popular</span>
+                </div>
+                <div class="plan-check" id="check-silver"></div>
+              </div>
+              <div class="plan-price">KES 599 <span>/ month</span></div>
+              <ul class="plan-features">
+                <li>Access to 23 client profiles</li>
+                <li>All Bronze features</li>
+                <li>Faster response speed</li>
+                <li>Priority email support</li>
+              </ul>
+            </div>
+
+            <div class="plan-card gold" onclick="selectPlan(this,'gold','KES 999',999)">
+              <div class="popular-tag">⭐ BEST VALUE</div>
+              <div class="plan-header">
+                <div class="plan-name-wrap">
+                  <span class="plan-icon">🥇</span>
+                  <span class="plan-name">Gold</span>
+                  <span class="plan-badge">Premium</span>
+                </div>
+                <div class="plan-check" id="check-gold"></div>
+              </div>
+              <div class="plan-price">KES 999 <span>/ month</span></div>
+              <ul class="plan-features">
+                <li>Access to 30+ client profiles</li>
+                <li>All Silver features</li>
+                <li>Unlimited messages</li>
+                <li>24/7 dedicated support</li>
+                <li>Exclusive content & events</li>
+              </ul>
+            </div>
+          </div>
+
+          <button class="btn-primary" id="continue-plan-btn" onclick="goToStep(3)" style="margin-bottom:12px" disabled>Proceed to Payment →</button>
+          <button class="btn-secondary" onclick="goToStep(1)">← Back</button>
+        </div>
+
+        <!-- STEP 3: Payment -->
+        <div class="step" id="step-3">
+          <div class="step-title">Choose Payment Method</div>
+          <div class="step-sub">Select how you'd like to complete your payment</div>
+
+          <div class="selected-plan-summary">
+            <div>
+              <div class="label">Selected Plan</div>
+              <div class="value" id="summary-plan">—</div>
+            </div>
+            <div style="text-align:right">
+              <div class="label">Monthly Fee</div>
+              <div class="price-val" id="summary-price">—</div>
+            </div>
+          </div>
+
+          <div class="payment-toggle">
+            <button class="toggle-btn active" id="toggle-mpesa" onclick="switchPayment('mpesa')">📱 M-Pesa</button>
+            <button class="toggle-btn" id="toggle-paypal" onclick="switchPayment('paypal')">🅿️ PayPal</button>
+          </div>
+
+          <!-- M-Pesa Panel -->
+          <div id="panel-mpesa">
+            <div class="mpesa-banner">
+              <div class="mpesa-logo">M-PESA</div>
+              <div><h3>Lipa Na M-Pesa</h3><p>Secure STK push to your phone</p></div>
+            </div>
+            <div id="mpesa-error" class="status-banner"></div>
+            <div class="field">
+              <label>M-Pesa Phone Number</label>
+              <div class="input-wrap">
+                <span class="icon">📲</span>
+                <input type="tel" id="mpesa-number" placeholder="07XXXXXXXX or 2547XXXXXXXX" oninput="formatMpesa(this)" maxlength="13">
+              </div>
+            </div>
+            <button class="btn-primary" id="pay-btn" onclick="initiatePayment()">💚 Send STK Push</button>
+          </div>
+
+          <!-- PayPal Panel -->
+          <div id="panel-paypal" style="display:none">
+            <div class="paypal-banner">
+              <div class="paypal-logo">PayPal</div>
+              <div><h3>Pay via PayPal</h3><p>Send payment to our PayPal account</p></div>
+            </div>
+            <div id="paypal-error" class="status-banner"></div>
+            <div class="paypal-info-box">
+              <div class="paypal-info-row">
+                <span class="paypal-info-label">Send Payment To</span>
+                <span class="paypal-info-value">brianmurimimuriuki@gmail.com</span>
+              </div>
+              <div class="paypal-info-row">
+                <span class="paypal-info-label">Amount</span>
+                <span class="paypal-info-value paypal-amount" id="paypal-amount-display">—</span>
+              </div>
+              <div class="paypal-info-row">
+                <span class="paypal-info-label">Note / Reference</span>
+                <span class="paypal-info-value">Your registered email</span>
+              </div>
+            </div>
+            <div class="paypal-steps">
+              <div class="pp-step"><span class="pp-num">1</span> Open your PayPal app or website</div>
+              <div class="pp-step"><span class="pp-num">2</span> Send the exact amount shown above</div>
+              <div class="pp-step"><span class="pp-num">3</span> Enter your email as the note/reference</div>
+              <div class="pp-step"><span class="pp-num">4</span> Click <strong>"Confirm PayPal Payment"</strong> below</div>
+            </div>
+            <button class="btn-paypal" id="paypal-confirm-btn" onclick="confirmPaypal()">🅿️ Confirm PayPal Payment</button>
+          </div>
+
+          <button class="btn-secondary" style="margin-top:12px" onclick="goToStep(2)">← Back</button>
+        </div>
+
+      </div>
+      <div class="card-footer">
+        <span>© 2026 FAN CHAT</span>
+        <span class="footer-link">Have account? <a href="#" onclick="showPage('page-signin')">Sign In →</a></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ BRONZE DASHBOARD ═══════════ -->
+<div class="dash-page" id="page-bronze">
+  <div class="dash-header">
+    <div class="dash-brand">
+      <div class="dash-brand-icon" style="background:var(--bronze-bg)">🥉</div>
+      <h2>FAN CHATS</h2>
+    </div>
+    <div class="tier-badge-header bronze">🥉 Bronze Member</div>
+    <button class="btn-signout" onclick="signOut()">Sign Out</button>
+  </div>
+
+  <div class="dash-tier-banner bronze">
+    <div class="tier-icon">🥉</div>
+    <div>
+      <h3>Bronze Membership — Active</h3>
+      <p>You have access to <strong>10 client profiles</strong> below. Upgrade to Silver or Gold for more connections!</p>
+    </div>
+  </div>
+
+  <div class="profiles-count">Showing <strong>10 profiles</strong> available on your Bronze plan</div>
+
+  <div class="profiles-grid" id="bronze-profiles"></div>
+</div>
+
+<!-- ═══════════ SILVER DASHBOARD ═══════════ -->
+<div class="dash-page" id="page-silver">
+  <div class="dash-header">
+    <div class="dash-brand">
+      <div class="dash-brand-icon" style="background:var(--silver-bg)">🥈</div>
+      <h2>FAN CHATS</h2>
+    </div>
+    <div class="tier-badge-header silver">🥈 Silver Member</div>
+    <button class="btn-signout" onclick="signOut()">Sign Out</button>
+  </div>
+
+  <div class="dash-tier-banner silver">
+    <div class="tier-icon">🥈</div>
+    <div>
+      <h3>Silver Membership — Active</h3>
+      <p>You have access to <strong>23 client profiles</strong> below. Upgrade to Gold to unlock even more!</p>
+    </div>
+  </div>
+
+  <div class="profiles-count">Showing <strong>23 profiles</strong> available on your Silver plan</div>
+
+  <div class="profiles-grid" id="silver-profiles"></div>
+</div>
+
+<!-- ═══════════ GOLD DASHBOARD ═══════════ -->
+<div class="dash-page" id="page-gold">
+  <div class="dash-header">
+    <div class="dash-brand">
+      <div class="dash-brand-icon" style="background:var(--gold-bg)">🥇</div>
+      <h2>FAN CHATS</h2>
+    </div>
+    <div class="tier-badge-header gold">🥇 Gold Member</div>
+    <button class="btn-signout" onclick="signOut()">Sign Out</button>
+  </div>
+
+  <div class="dash-tier-banner gold">
+    <div class="tier-icon">🥇</div>
+    <div>
+      <h3>Gold Membership — Active</h3>
+      <p>You have <strong>full access to 32 premium profiles</strong>. Enjoy the best of FanChats!</p>
+    </div>
+  </div>
+
+  <div class="profiles-count">Showing <strong>32 profiles</strong> available on your Gold plan</div>
+
+  <div class="profiles-grid" id="gold-profiles"></div>
+</div>
+
+<!-- ═══════════ M-PESA MODAL ═══════════ -->
+<div class="modal-overlay" id="mpesa-modal">
+  <div class="modal">
+    <div class="modal-icon">📲</div>
+    <h2>M-Pesa STK Push Sent!</h2>
+    <p>A payment request has been sent to:</p>
+    <div class="phone-display" id="modal-phone">07XX XXX XXX</div>
+    <div class="amount-display">KES <span id="modal-amount">—</span></div>
+    <p style="font-size:13px;margin-bottom:0">for <strong id="modal-plan-name">—</strong> membership</p>
+    <ol class="modal-steps">
+      <li><span class="step-num">1</span> Check your phone for the M-Pesa prompt</li>
+      <li><span class="step-num">2</span> Enter your M-Pesa PIN to confirm</li>
+      <li><span class="step-num">3</span> You'll receive an SMS confirmation</li>
+      <li><span class="step-num">4</span> Your account will be activated instantly</li>
+    </ol>
+    <button class="btn-primary" id="confirm-btn" onclick="confirmPayment()">
+      <span class="spinner" id="confirm-spinner" style="display:none"></span>
+      <span id="confirm-text">I've Entered My PIN ✓</span>
+    </button>
+    <p style="font-size:12px;color:#94a3b8;margin-top:14px">Didn't receive a prompt? <a href="#" style="color:var(--green)" onclick="resendPrompt()">Resend →</a></p>
+  </div>
+</div>
+
+<script>
+/* ─────────────────────────────────────────
+   PROFILE DATA
+───────────────────────────────────────── */
+const ALL_PROFILES = [
+  { name:"Amina Wanjiru", age:26, sex:"Female", status:"Single", country:"Kenya", phone:"+254 712 345 678", avatar:"👩🏾", bio:"A vibrant Nairobi-based creative with a passion for art and music. Loves weekend road trips to the Rift Valley and trying out new restaurants. I am easy-going, humorous, and enjoy deep conversations. Looking for someone with a genuine heart and great energy. Let's create beautiful memories together." },
+  { name:"Brian Omondi", age:31, sex:"Male", status:"Divorced", country:"Kenya", phone:"+254 722 876 543", avatar:"👨🏿", bio:"Software engineer by day, guitarist by night. I recently relocated back to Kenya after five years in the UK and I'm enjoying rediscovering Nairobi. I value honesty and loyalty above everything else. Fitness enthusiast who hits the gym four times a week. Looking for a genuine connection with someone who shares big dreams." },
+  { name:"Chloe Muthoni", age:24, sex:"Female", status:"Single", country:"Uganda", phone:"+256 701 234 567", avatar:"👩🏽", bio:"Communications graduate working at a Kampala media house. I love poetry, yoga, and Sunday brunch with close friends. An introvert who opens up once I feel comfortable. Family is everything to me and I aspire to travel all seven continents. Seeking a kind and ambitious partner to share life's journey." },
+  { name:"David Kariuki", age:29, sex:"Male", status:"Single", country:"Kenya", phone:"+254 733 987 654", avatar:"👨🏾", bio:"Entrepreneur running a successful agribusiness in Nakuru. Passionate about sustainable farming and community development. I enjoy hiking, photography, and cooking traditional dishes on weekends. I believe in building a solid foundation before rushing into anything. Looking for a grounded, independent woman with a vision." },
+  { name:"Esther Achieng", age:27, sex:"Female", status:"Single", country:"Tanzania", phone:"+255 754 321 098", avatar:"👩🏿", bio:"Nurse at Muhimbili Hospital who is passionate about healthcare and wellness. I spend my days off exploring Dar es Salaam's beaches and food markets. Deeply spiritual and very family-oriented with a contagious laugh. I enjoy board games, books, and documentaries on Friday nights. Ready to meet someone serious about building a future." },
+  { name:"Felix Njoroge", age:34, sex:"Male", status:"Widowed", country:"Kenya", phone:"+254 745 678 901", avatar:"👨🏾", bio:"Secondary school teacher and part-time motivational speaker from Nyeri. I lost my wife three years ago and I've found healing in helping young people discover their potential. I love nature walks, gospel music, and simple home-cooked meals. Faith is central to my life. Looking for a compassionate, warm-hearted partner." },
+  { name:"Grace Atieno", age:22, sex:"Female", status:"Single", country:"Rwanda", phone:"+250 788 543 210", avatar:"👩🏽", bio:"Final-year business student at University of Rwanda who dreams of launching her own fashion brand. Style-conscious, ambitious, and always the life of any gathering. I adore Afrobeats, cooking, and exploring Kigali's art scene. Looking for a mature, supportive partner who celebrates growth and sees the best in people." },
+  { name:"Hassan Mwangi", age:36, sex:"Male", status:"Single", country:"Kenya", phone:"+254 756 234 567", avatar:"👨🏿", bio:"Logistics manager at a Mombasa shipping company who loves the coast life. I enjoy deep-sea fishing, Swahili cuisine, and long evening walks along the beach. Calm, thoughtful, and a great listener. I have two cats and a small kitchen garden I tend to on weekends. Seeking a mature woman who values peace and stability." },
+  { name:"Isabella Chebet", age:28, sex:"Female", status:"Single", country:"Kenya", phone:"+254 767 890 123", avatar:"👩🏾", bio:"Pharmacist and part-time fitness coach in Eldoret. Extremely passionate about health, nutrition, and clean living. I enjoy trail running, baking healthy treats, and volunteering at the local children's shelter. Adventure is my middle name — I've climbed Mt. Longonot twice! Looking for an active, health-conscious partner who loves the outdoors." },
+  { name:"James Kamau", age:32, sex:"Male", status:"Single", country:"Ethiopia", phone:"+251 911 456 789", avatar:"👨🏽", bio:"Architect based in Addis Ababa with a love for blending traditional African design with modern minimalism. I play chess competitively and enjoy cycling on weekends. I am patient, articulate, and believe that great relationships are built through consistent effort. Looking for an intelligent, driven woman who values meaningful conversation." },
+  { name:"Kendi Waweru", age:25, sex:"Female", status:"Single", country:"Kenya", phone:"+254 778 901 234", avatar:"👩🏾", bio:"Digital marketing specialist in Nairobi who is obsessed with social media trends and content creation. I spend evenings reading, painting, and watching travel documentaries. Very sociable but also cherish quiet evenings at home. I believe communication is the backbone of any great relationship. Looking for someone who is fun, honest, and consistent." },
+  { name:"Leon Ochieng", age:30, sex:"Male", status:"Single", country:"South Africa", phone:"+27 82 345 6789", avatar:"👨🏿", bio:"Cape Town-based entrepreneur in the renewable energy sector. Environmentalist at heart who cycles to work and grows vegetables on his balcony. I enjoy jazz music, hiking Table Mountain, and cooking Italian food. Very family-oriented and looking to settle down within the next couple of years. Seeking a warm, adventurous partner." },
+  { name:"Mary Njeri", age:23, sex:"Female", status:"Single", country:"Kenya", phone:"+254 789 012 345", avatar:"👩🏾", bio:"Journalism student at Nairobi University who hopes to become an investigative reporter. Bold, curious, and never afraid to speak her mind. I volunteer at a local media literacy NGO and enjoy spoken word poetry nights. I like people who are authentic and real. Looking for someone who appreciates honesty and has a good sense of humor." },
+  { name:"Nathan Kipchoge", age:35, sex:"Male", status:"Separated", country:"Kenya", phone:"+254 790 123 456", avatar:"👨🏾", bio:"Long-distance runner and personal trainer based in Iten. I've competed in four international marathons and coach a local youth running club. Disciplined, focused, but also loves to laugh and enjoy a good meal after a long run. Faith and family drive everything I do. Seeking a grounded, supportive partner ready for a committed relationship." },
+  { name:"Olivia Nasimiyu", age:26, sex:"Female", status:"Single", country:"Kenya", phone:"+254 700 234 567", avatar:"👩🏿", bio:"Social worker helping street-connected youth in Kisumu. Deeply empathetic, resilient, and full of stories that will move you. I love reading Ngugi wa Thiong'o, cooking vegetarian meals, and dancing to luo benga music. Looking for a kind soul who values community, compassion, and genuine human connection." },
+  { name:"Patrick Muthama", age:29, sex:"Male", status:"Single", country:"Kenya", phone:"+254 711 345 678", avatar:"👨🏾", bio:"Veterinarian working with wildlife conservancies in Tsavo. My office is literally the savannah and I love every second of it. On days off I enjoy bird-watching, stargazing, and grilling by the riverside. Quiet and reflective by nature but fiercely loyal to those I care about. Seeking a patient, nature-loving partner." },
+  { name:"Queen Adhiambo", age:24, sex:"Female", status:"Single", country:"Nigeria", phone:"+234 803 456 789", avatar:"👩🏽", bio:"Lagos-based fashion designer who recently launched her own Ankara clothing line. Energetic, creative, and full of Afrocentric pride. I love Afrobeats concerts, street food adventures, and binging on Nollywood films. I believe in growing together as a couple. Looking for a confident, supportive man who appreciates African culture and beauty." },
+  { name:"Raymond Oloo", age:33, sex:"Male", status:"Single", country:"Kenya", phone:"+254 721 456 789", avatar:"👨🏿", bio:"Marine biologist and conservationist based in Mombasa. I spend most mornings snorkeling and my evenings writing research papers. I am soft-spoken, deeply intellectual, and passionate about ocean conservation. I enjoy spicy coastal food, Swahili poetry, and acoustic guitar. Seeking a thoughtful, curious woman who loves nature and the sea." },
+  { name:"Sophia Mwende", age:27, sex:"Female", status:"Single", country:"Kenya", phone:"+254 732 567 890", avatar:"👩🏾", bio:"Event planner who has organized over 200 weddings across East Africa. I live for beautiful details, great music, and bringing people's visions to life. Bubbly, reliable, and a natural problem-solver. I bake cakes as a hobby and run a small catering side business. Looking for someone equally passionate, loving, and ready to build a life." },
+  { name:"Tobias Otieno", age:28, sex:"Male", status:"Single", country:"Ghana", phone:"+233 24 567 8901", avatar:"👨🏽", bio:"Accra-based economist working with an international development NGO. I love analyzing global markets almost as much as I love jollof rice and Highlife music. Thoughtful, well-traveled, and fluent in four languages. I enjoy football, chess, and Saturday morning runs. Seeking a driven, open-minded partner to share intellectual and romantic adventures." },
+  { name:"Ursula Kamau", age:30, sex:"Female", status:"Divorced", country:"Kenya", phone:"+254 743 678 901", avatar:"👩🏾", bio:"Licensed pilot working with a regional airline, based in Nairobi. My career has taken me across Africa and I have developed a deep appreciation for diverse cultures. I am confident, independent, and know exactly what I want. Outside work I love yoga, crime novels, and experimenting with fusion cooking. Seeking a secure, emotionally mature partner." },
+  { name:"Victor Ngugi", age:26, sex:"Male", status:"Single", country:"Kenya", phone:"+254 754 789 012", avatar:"👨🏾", bio:"Graphic designer and illustrator working with Nairobi's top advertising agencies. Highly creative with a passion for storytelling through visuals. I collect vintage posters, grow succulents, and enjoy open-mic poetry nights. I am gentle, supportive, and emotionally available. Seeking a creative soul who values art, laughter, and quiet Sunday mornings." },
+  { name:"Wanjiku Maina", age:23, sex:"Female", status:"Single", country:"Kenya", phone:"+254 765 890 123", avatar:"👩🏽", bio:"Passionate chef and food blogger documenting East African cuisine in Nairobi. My kitchen is my happy place and I love feeding people. I run a popular YouTube channel on traditional recipes with a modern twist. Outside cooking I enjoy hiking, photography, and attending community cultural festivals. Seeking a warm, food-loving partner who enjoys sharing meals." },
+  { name:"Xavier Baraka", age:31, sex:"Male", status:"Single", country:"DRC", phone:"+243 81 234 5678", avatar:"👨🏿", bio:"Kinshasa-born journalist now based in Nairobi covering East and Central African politics. I have a sharp mind, a dry sense of humor, and a deep love for African literature. I enjoy salsa dancing, espresso, and late-night debates about history. Looking for an intellectually stimulating, independent woman who isn't afraid to challenge me." },
+  { name:"Yasmin Halake", age:25, sex:"Female", status:"Single", country:"Kenya", phone:"+254 776 901 234", avatar:"👩🏽", bio:"Community health advocate working in Marsabit's nomadic pastoralist communities. Fearless, dedicated, and deeply rooted in her Borana culture. I love camel riding, starlit evenings, and traditional folk songs. I speak five languages including Borana and Swahili. Seeking an open-minded, culturally respectful partner who values service and community." },
+  { name:"Zack Wambua", age:34, sex:"Male", status:"Single", country:"Kenya", phone:"+254 787 012 345", avatar:"👨🏾", bio:"Real estate developer based in Nairobi with projects across Machakos and Kiambu. Ambitious, grounded, and very family-oriented. I enjoy golf on weekends, reading business autobiographies, and watching Arsenal. I have a great relationship with my family and involve them in important decisions. Looking for a mature, stable woman ready to build a home and future." },
+  { name:"Aisha Baraka", age:22, sex:"Female", status:"Single", country:"Zanzibar", phone:"+255 777 123 456", avatar:"👩🏽", bio:"Tourism and hospitality graduate working at a Stone Town boutique hotel. I was born on the ocean and it is part of my soul. I love traditional Zanzibari cuisine, henna art, and full-moon dhow rides. Gentle, spiritual, and devoted to family and faith. Looking for a sincere, respectful partner who understands and celebrates my culture." },
+  { name:"Bernard Mwiti", age:29, sex:"Male", status:"Single", country:"Kenya", phone:"+254 798 234 567", avatar:"👨🏾", bio:"Software developer at a Nairobi fintech startup changing how Africans save and invest. Deeply passionate about financial inclusion and technology. I enjoy hackathons, board games, and late-night ramen runs with friends. Quiet in large groups but incredibly warm one-on-one. Looking for a curious, driven partner who dreams boldly and loves genuinely." },
+  { name:"Caroline Auma", age:28, sex:"Female", status:"Single", country:"Kenya", phone:"+254 709 345 678", avatar:"👩🏿", bio:"Environmental lawyer advocating for climate justice in East Africa. I am articulate, passionate, and not afraid of a good debate. I enjoy kayaking on Lake Victoria, reading legal thrillers, and attending jazz festivals. I believe in building relationships on respect and shared values. Seeking a conscious, compassionate partner who cares about the world." },
+  { name:"Denis Wekesa", age:33, sex:"Male", status:"Single", country:"Kenya", phone:"+254 710 456 789", avatar:"👨🏾", bio:"Radio presenter at a leading Nairobi FM station known for his smooth voice and warm humor. I interview fascinating people for a living and I love a great conversation. I enjoy comedy nights, road trips to Western Kenya, and Luhya cuisine. Easy-going, honest, and deeply loyal. Looking for a vibrant, loving woman who appreciates laughter and good music." },
+  { name:"Eunice Moraa", age:26, sex:"Female", status:"Single", country:"Kenya", phone:"+254 720 567 890", avatar:"👩🏾", bio:"Professional dancer and choreographer teaching contemporary and Afro-fusion dance in Nairobi. Movement is my first language and I feel music in my bones. I love documentaries, herbal teas, and Sunday church. I am expressive, empathetic, and fiercely supportive of those I love. Seeking a kind, emotionally intelligent partner who appreciates the arts." },
+  { name:"Francis Odhiambo", age:37, sex:"Male", status:"Single", country:"Kenya", phone:"+254 730 678 901", avatar:"👨🏿", bio:"Retired semi-professional footballer now coaching youth teams in Kisumu. Football shaped everything about who I am — discipline, teamwork, and perseverance. I enjoy fishing at Lake Victoria, Ohangla music, and large family gatherings. I am a homebody at heart who also loves occasional adventures. Seeking a warm, family-loving woman to share a peaceful, joyful life." },
+  { name:"Gloria Kerubo", age:24, sex:"Female", status:"Single", country:"Kenya", phone:"+254 740 789 012", avatar:"👩🏾", bio:"Medical student in her fourth year at University of Nairobi. Disciplined, driven, and full of quiet confidence. Outside academics I enjoy oil painting, African history podcasts, and cooking for my housemates. I am introverted but deeply caring. Looking for a patient, emotionally mature partner who understands ambition and supports personal growth." }
+];
+
+/* ─────────────────────────────────────────
+   RENDER PROFILES
+───────────────────────────────────────── */
+function renderProfiles(containerId, count, tier) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const p = ALL_PROFILES[i];
+    container.innerHTML += `
+      <div class="profile-card ${tier}">
+        <div class="profile-card-top"></div>
+        <div class="profile-card-body">
+          <div class="profile-avatar">${p.avatar}</div>
+          <div class="profile-name">${p.name}</div>
+          <div class="profile-handle">📍 ${p.country}</div>
+          <div class="profile-meta">
+            <span class="meta-chip age">Age ${p.age}</span>
+            <span class="meta-chip sex">${p.sex}</span>
+            <span class="meta-chip status">${p.status}</span>
+            <span class="meta-chip country">${p.country}</span>
+          </div>
+          <div class="profile-phone">📞 <span>${p.phone}</span></div>
+          <div class="profile-bio">${p.bio}</div>
+          <button class="btn-chat">💬 Start Chat</button>
+        </div>
+      </div>`;
+  }
+}
+
+renderProfiles('bronze-profiles', 10, 'bronze');
+renderProfiles('silver-profiles', 23, 'silver');
+renderProfiles('gold-profiles',   32, 'gold');
+
+/* ─────────────────────────────────────────
+   NAVIGATION
+───────────────────────────────────────── */
+function showPage(id) {
+  document.querySelectorAll('.auth-wrap, .dash-page').forEach(p => {
+    p.classList.remove('active');
+  });
+  const el = document.getElementById(id);
+  if (el) el.classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+/* ─────────────────────────────────────────
+   SIGN IN
+───────────────────────────────────────── */
+function handleSignIn() {
+  const id  = document.getElementById('signin-identifier').value.trim();
+  const pwd = document.getElementById('signin-password').value;
+  const err = document.getElementById('signin-error');
+
+  if (!id || !pwd) { showError(err, '⚠️ Please enter your phone/email and password.'); return; }
+
+  err.className = 'status-banner';
+  const existing = localStorage.getItem('cnw_user');
+  if (!existing) {
+    showError(err, 'No account found. Redirecting to Sign Up…');
+    setTimeout(() => showPage('page-signup'), 1500);
+  } else {
+    const user = JSON.parse(existing);
+    showError(err, '✅ Sign in successful! Redirecting…');
+    err.className = 'status-banner success';
+    setTimeout(() => showPage('page-' + (user.plan || 'bronze')), 1200);
+  }
+}
+
+/* ─────────────────────────────────────────
+   SIGN UP STEPS
+───────────────────────────────────────── */
+let currentStep = 1;
+
+function goToStep(n) {
+  if (n === 2) {
+    const fn = document.getElementById('first-name').value.trim();
+    const ln = document.getElementById('last-name').value.trim();
+    const id = document.getElementById('signup-identifier').value.trim();
+    const pw = document.getElementById('signup-password').value;
+    const cp = document.getElementById('signup-confirm-password').value;
+    const err = document.getElementById('signup-error');
+
+    if (!fn || !ln || !id || !pw || !cp) { showError(err, '⚠️ Please fill in all fields including Confirm Password.'); return; }
+    if (pw.length < 6) { showError(err, '⚠️ Password must be at least 6 characters.'); return; }
+    if (pw !== cp) {
+      checkSignupPwdMatch();
+      showError(err, '⚠️ Passwords do not match. Please fix before continuing.');
+      return;
+    }
+    err.className = 'status-banner';
+  }
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step-' + n).classList.add('active');
+  updateDots(n);
+  currentStep = n;
+}
+
+function updateDots(active) {
+  for (let i = 1; i <= 3; i++) {
+    const dot = document.getElementById('dot-' + i);
+    dot.className = 'step-dot';
+    if (i < active)  dot.classList.add('done');
+    if (i === active) dot.classList.add('active');
+  }
+}
+
+/* ─────────────────────────────────────────
+   PASSWORD MATCH CHECK (sign up)
+───────────────────────────────────────── */
+function checkSignupPwdMatch() {
+  const pw  = document.getElementById('signup-password').value;
+  const cp  = document.getElementById('signup-confirm-password').value;
+  const msg = document.getElementById('signup-pwd-mismatch');
+  const inp = document.getElementById('signup-confirm-password');
+
+  if (cp.length === 0) { msg.style.display = 'none'; inp.classList.remove('mismatch'); return; }
+  if (pw !== cp) {
+    msg.style.display = 'block';
+    msg.style.animation = 'none';
+    void msg.offsetWidth;
+    msg.style.animation = 'shake 0.4s ease';
+    inp.classList.add('mismatch');
+  } else {
+    msg.style.display = 'none';
+    inp.classList.remove('mismatch');
+  }
+}
+
+/* ─────────────────────────────────────────
+   PLAN SELECTION
+───────────────────────────────────────── */
+let selectedPlan = null;
+
+function selectPlan(el, tier, price, amount) {
+  document.querySelectorAll('.plan-card').forEach(c => {
+    c.classList.remove('selected');
+    c.querySelector('.plan-check').textContent = '';
+  });
+  el.classList.add('selected');
+  el.querySelector('.plan-check').textContent = '✓';
+  selectedPlan = { tier, price, amount };
+  document.getElementById('summary-plan').textContent  = tier.charAt(0).toUpperCase() + tier.slice(1) + ' Plan';
+  document.getElementById('summary-price').textContent = price;
+  const btn = document.getElementById('continue-plan-btn');
+  btn.disabled = false; btn.style.opacity = '1';
+}
+
+/* ─────────────────────────────────────────
+   PAYMENT
+───────────────────────────────────────── */
+const MPESA_TILL  = '4970818';
+const PAYPAL_EMAIL = 'brianmurimimuriuki@gmail.com';
+
+function switchPayment(method) {
+  document.getElementById('panel-mpesa').style.display  = method === 'mpesa'  ? 'block' : 'none';
+  document.getElementById('panel-paypal').style.display = method === 'paypal' ? 'block' : 'none';
+  document.getElementById('toggle-mpesa').classList.toggle('active',  method === 'mpesa');
+  document.getElementById('toggle-paypal').classList.toggle('active', method === 'paypal');
+  if (method === 'paypal') {
+    document.getElementById('paypal-amount-display').textContent =
+      document.getElementById('summary-price').textContent || '—';
+  }
+}
+
+function formatMpesa(input) {
+  let v = input.value.replace(/\D/g,'');
+  if (v.startsWith('0') && v.length > 1) v = '254' + v.slice(1);
+  input.value = v.startsWith('254') ? '+' + v : v;
+}
+
+function getRawPhone() {
+  return document.getElementById('mpesa-number').value.replace(/\D/g,'');
+}
+
+function initiatePayment() {
+  const raw = getRawPhone();
+  const err = document.getElementById('mpesa-error');
+  if (!selectedPlan) { showBanner(err,'⚠️ No plan selected.','warn'); return; }
+  if (raw.length < 10) { showBanner(err,'⚠️ Enter a valid Safaricom number.','warn'); return; }
+  err.className = 'status-banner';
+
+  const display = raw.replace(/(\d{3})(\d{3})(\d{3})(\d*)/, '+$1 $2 $3 $4').trim();
+  document.getElementById('modal-phone').textContent = display;
+  document.getElementById('modal-amount').textContent = selectedPlan.amount.toLocaleString();
+  document.getElementById('modal-plan-name').textContent = selectedPlan.tier.charAt(0).toUpperCase() + selectedPlan.tier.slice(1);
+  document.getElementById('mpesa-modal').classList.add('show');
+}
+
+function confirmPaypal() {
+  const price = document.getElementById('summary-price').textContent || '—';
+  const plan  = document.getElementById('summary-plan').textContent  || '—';
+  const err   = document.getElementById('paypal-error');
+  const btn   = document.getElementById('paypal-confirm-btn');
+
+  showBanner(err,
+    `✅ Thank you! Once we confirm your PayPal payment of <strong>${price}</strong> to <strong>${PAYPAL_EMAIL}</strong>, your <em>${plan}</em> will be activated. Check your email for confirmation.`,
+    'success'
+  );
+  btn.textContent = '⏳ Awaiting confirmation…';
+  btn.disabled = true;
+
+  // Redirect after 3 seconds
+  setTimeout(() => {
+    saveAndRedirect();
+  }, 3000);
+}
+
+function confirmPayment() {
+  const btn     = document.getElementById('confirm-btn');
+  const spinner = document.getElementById('confirm-spinner');
+  const text    = document.getElementById('confirm-text');
+  spinner.style.display = 'inline-block';
+  text.textContent = 'Verifying…';
+  btn.disabled = true;
+
+  setTimeout(() => {
+    document.getElementById('mpesa-modal').classList.remove('show');
+    spinner.style.display = 'none';
+    text.textContent = "I've Entered My PIN ✓";
+    btn.disabled = false;
+    saveAndRedirect();
+  }, 2200);
+}
+
+function saveAndRedirect() {
+  const name = document.getElementById('first-name').value || 'User';
+  localStorage.setItem('cnw_user', JSON.stringify({
+    name, plan: selectedPlan.tier, joined: new Date().toISOString()
+  }));
+  showPage('page-' + selectedPlan.tier);
+}
+
+function resendPrompt() {
+  alert('A new M-Pesa STK push has been sent to your phone. Please check and enter your PIN.');
+}
+
+function signOut() {
+  showPage('page-signin');
+}
+
+/* ─────────────────────────────────────────
+   UTILS
+───────────────────────────────────────── */
+function showError(el, msg) { el.innerHTML = msg; el.className = 'status-banner error'; }
+
+function showBanner(el, html, type) {
+  el.innerHTML = html; el.style.display = 'block'; el.className = 'status-banner';
+  const styles = {
+    success: 'display:block;background:#f0fdf4;border:1.5px solid #86efac;color:#166534;padding:12px 14px;border-radius:10px;font-size:0.85rem;margin-bottom:14px;',
+    error:   'display:block;background:#fff5f5;border:1.5px solid #fc8181;color:#c53030;padding:12px 14px;border-radius:10px;font-size:0.85rem;margin-bottom:14px;',
+    warn:    'display:block;background:#fffbeb;border:1.5px solid #fcd34d;color:#92400e;padding:12px 14px;border-radius:10px;font-size:0.85rem;margin-bottom:14px;'
+  };
+  el.style.cssText = styles[type] || styles.warn;
+}
+
+function togglePwd(id, btn) {
+  const inp = document.getElementById(id);
+  if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+  else { inp.type = 'password'; btn.textContent = '👁'; }
+}
+
+document.getElementById('mpesa-modal').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('show');
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('page-signin').classList.contains('active')) handleSignIn();
+});
+</script>
+</body>
+</html>
